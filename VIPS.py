@@ -18,7 +18,7 @@ class RegionOutOfBoundsException(Exception):
     
     def __init__(self, region_identifier): super().__init__(region_identifier)
 
-class TiffAdapter:
+class VIPSAdapter:
     
     def __init__(self, filepath: str):
         
@@ -30,6 +30,14 @@ class TiffAdapter:
         
         return self._image
     
+    def get_width(self):
+        
+        return self._width
+
+    def get_height(self):
+        
+        return self._height
+
     def get_region(self, region_identifier, region_dims):
         
         if region_identifier >= self.number_of_regions(region_dims):
@@ -37,19 +45,19 @@ class TiffAdapter:
         
         top = 0
         left = 0
-        if self._height <= (region_identifier * region_dims[1]):
-            left = ((region_identifier * region_dims[1]) // self._height) * region_dims[0]
-            top = min(region_identifier * region_dims[1] % self._height, region_identifier * region_dims[1])
+        if self._width <= (region_identifier * region_dims[0]):
+            top = ((region_identifier * region_dims[0]) // self._width) * region_dims[1]
+            left = min(region_identifier * region_dims[0] % self._width, region_identifier * region_dims[0])
         else:
-            top = region_identifier * region_dims[1]
+            left = region_identifier * region_dims[0]
         
         if (top + region_dims[1]) > self._height:
-            height = self._height - top
+            raise RegionOutOfBoundsException(region_dims[1])
         else:
             height = region_dims[1]
         
         if (left + region_dims[0] ) > self._width:
-            width = self._width - left
+            raise RegionOutOfBoundsException(region_dims[0])
         else:
             width = region_dims[0]
         
@@ -59,4 +67,6 @@ class TiffAdapter:
 
     def number_of_regions(self, region_dims):
         #Example: 512x512 region dimensions for a 1024x1024 image results in 4 512x512 regions
-        return math.ceil((self._width * self._height) / (region_dims[0] * region_dims[1]))
+        return math.floor(self._width / region_dims[0]) * math.floor(self._height / region_dims[1])
+    
+        
