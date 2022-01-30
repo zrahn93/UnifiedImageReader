@@ -40,6 +40,12 @@ class ImageReader(abc.ABC):
     @abc.abstractmethod
     def number_of_regions(self, region_dims) -> int: pass
 
+    @abc.abstractmethod
+    def get_width(self) -> int: pass
+
+    @abc.abstractmethod
+    def get_height(self) -> int: pass
+
 class ImageReaderTIFF(ImageReader):
 
     def __init__(self, filepath: str):
@@ -63,9 +69,3 @@ class ImageReaderTIFF(ImageReader):
     @classmethod
     def accepted_formats(cls):
         return ["tiff", "tif"]
-
-if __name__ == "__main__":
-
-    reader = ImageReader.get_reader("test.tiff", "tif")
-
-    print(reader)
