@@ -22,6 +22,9 @@ class VIPSAdapter:
     
     def __init__(self, filepath: str):
 
+        if filepath.endswith(".svs"):
+            raise NotImplementedError("svs images aren't really supported right now because of shenanigans - see this link for help: https://github.com/libvips/libvips/issues/2365")
+
         self._image = pyvips.Image.new_from_file(filepath)
         self._width = self._image.width
         self._height = self._image.height

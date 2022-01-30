@@ -76,26 +76,7 @@ class ImageReaderSVS(ImageReader):
     
     def __init__(self, filepath: str):
 
-        super().__init__(filepath)
-
-        self._adapter = VIPS.VIPSAdapter(filepath)
-        self._image = self._adapter.get_image()
-
-    def get_region(self, region_identifier, region_dims) -> np.ndarray:
-
-        return self._adapter.get_region(region_identifier, region_dims)
-        
-    def number_of_regions(self, region_dims) -> int:
-
-        return self._adapter.number_of_regions(region_dims)
-
-    def get_width(self):
-        
-        return self._adapter.get_width()
-
-    def get_height(self):
-        
-        return self._adapter.get_height()
+        raise NotImplementedError()
 
     @classmethod
     def accepted_formats(cls):
