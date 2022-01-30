@@ -2,6 +2,9 @@
 import abc
 import numpy as np
 import os
+import TiffAdapter
+
+from TiffAdapter import TiffAdapter
 
 class UnsupportedFormatException(Exception):
 
@@ -44,17 +47,18 @@ class ImageReaderTIFF(ImageReader):
         super().__init__(filepath)
 
         # TODO - maybe you need to keep a reference to the image file here? PIL's Image initializer is a good example of why
-        raise NotImplementedError()
+        #The image reference is currently unused here
+        self._adapter = TiffAdapter(filepath)
+        self._image = self._adapter.get_image()
 
     def get_region(self, region_identifier, region_dims) -> np.ndarray:
 
-        # TODO
-        raise NotImplementedError()
+        return self._adapter.get_region(region_identifier, region_dims)
+        
     
     def number_of_regions(self, region_dims) -> int:
 
-        # TODO
-        raise NotImplementedError()
+        return self._adapter.number_of_regions(region_dims)
     
     @classmethod
     def accepted_formats(cls):
