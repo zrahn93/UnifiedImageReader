@@ -2,9 +2,8 @@
 import abc
 import numpy as np
 import os
-import VIPS
 
-from VIPS import VIPSAdapter
+from Adapters import VIPS
 
 class UnsupportedFormatException(Exception):
 
@@ -20,11 +19,7 @@ class ImageReader(abc.ABC):
     @classmethod
     def get_reader(cls, filepath: str, format: str):
 
-        print(filepath, format)
-
         for reader_class in cls.__subclasses__():
-            print(reader_class)
-            print(dir(reader_class))
             if format.lower() in reader_class.accepted_formats():
                 return reader_class(filepath)
 
@@ -54,7 +49,7 @@ class ImageReaderTIFF(ImageReader):
 
         # TODO - maybe you need to keep a reference to the image file here? PIL's Image initializer is a good example of why
         #The image reference is currently unused here
-        self._adapter = VIPSAdapter(filepath)
+        self._adapter = VIPS.VIPSAdapter(filepath)
         self._image = self._adapter.get_image()
 
     def get_region(self, region_identifier, region_dims) -> np.ndarray:
@@ -83,7 +78,7 @@ class ImageReaderSVS(ImageReader):
 
         super().__init__(filepath)
 
-        self._adapter = VIPSAdapter(filepath)
+        self._adapter = VIPS.VIPSAdapter(filepath)
         self._image = self._adapter.get_image()
 
     def get_region(self, region_identifier, region_dims) -> np.ndarray:
