@@ -3,7 +3,7 @@ import abc
 import os
 import numpy as np
 
-from adapters import vips
+from Adapters import VIPS, SLIDEIO
 
 # TODO: Add pydoc to top of file, to each class, and each method
 
@@ -55,7 +55,7 @@ class ImageReaderTIFF(ImageReader):
 
         # TODO - maybe you need to keep a reference to the image file here? PIL's Image initializer is a good example of why
         # The image reference is currently unused here
-        self._adapter = vips.VIPSAdapter(filepath)
+        self._adapter = VIPS.VIPSAdapter(filepath)
         self._image = self._adapter.get_image()
 
     def get_region(self, region_identifier, region_dims) -> np.ndarray:
@@ -81,9 +81,27 @@ class ImageReaderTIFF(ImageReader):
 
 class ImageReaderSVS(ImageReader):
 
-    def __init__(self, filepath: str):
+    def __init__(self, filepath):
 
-        raise NotImplementedError()
+        super().__init__(filepath)
+        self._adapter = SLIDEIO.SLIDEIOAdapter(filepath)
+        self._image = self._adapter.get_image()
+
+    def get_region(self, region_identifier, region_dims) -> np.ndarray:
+
+        return self._adapter.get_region(region_identifier, region_dims)
+
+    def number_of_regions(self, region_dims) -> int:
+
+        return self._adapter.number_of_regions(region_dims)
+
+    def get_width(self):
+
+        return self._adapter.get_width()
+
+    def get_height(self):
+
+        return self._adapter.get_height()
 
     @classmethod
     def accepted_formats(cls):
