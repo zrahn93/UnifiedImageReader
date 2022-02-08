@@ -3,7 +3,7 @@ import abc
 import os
 import numpy as np
 
-from .adapters import vips, slideio
+from adapters import vips, slideio
 
 # TODO: Add pydoc to top of file, to each class, and each method
 
