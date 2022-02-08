@@ -24,7 +24,7 @@ setup(
         "todo lol"),
     license="MIT",
     keywords="todo",
-    packages=[''],
+    packages=['unified_image_reader'],
     long_description=read('README.md'),
     install_requires=install_reqs,
 )
