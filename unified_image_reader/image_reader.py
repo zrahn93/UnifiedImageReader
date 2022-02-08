@@ -3,7 +3,8 @@ import abc
 import os
 import numpy as np
 
-from adapters import vips, slideio
+import adapters.vips as vips
+import adapters.slideio as slideio
 
 # TODO: Add pydoc to top of file, to each class, and each method
 
@@ -55,7 +56,7 @@ class ImageReaderTIFF(ImageReader):
 
         # TODO - maybe you need to keep a reference to the image file here? PIL's Image initializer is a good example of why
         # The image reference is currently unused here
-        self._adapter = VIPS.VIPSAdapter(filepath)
+        self._adapter = vips.VIPSAdapter(filepath)
         self._image = self._adapter.get_image()
 
     def get_region(self, region_identifier, region_dims) -> np.ndarray:
