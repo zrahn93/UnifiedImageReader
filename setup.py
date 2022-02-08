@@ -16,7 +16,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name="UnifiedImageReader",
+    name="unified_image_reader",
     version="0.0.1",
     author="Adin Solomon",
     author_email="adinbsolomon@gmail.com",
