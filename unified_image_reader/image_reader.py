@@ -3,7 +3,7 @@ import abc
 import os
 import numpy as np
 
-from Adapters import VIPS, SLIDEIO
+from .adapters import vips, slideio
 
 # TODO: Add pydoc to top of file, to each class, and each method
 
@@ -84,7 +84,7 @@ class ImageReaderSVS(ImageReader):
     def __init__(self, filepath):
 
         super().__init__(filepath)
-        self._adapter = SLIDEIO.SLIDEIOAdapter(filepath)
+        self._adapter = slideio.SLIDEIOAdapter(filepath)
         self._image = self._adapter.get_image()
 
     def get_region(self, region_identifier, region_dims) -> np.ndarray:
