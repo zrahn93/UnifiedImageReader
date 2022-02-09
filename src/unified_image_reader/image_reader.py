@@ -3,7 +3,7 @@ import abc
 import os
 import numpy as np
 
-from unified_image_reader.adapters import vips#, slideio
+from unified_image_reader.adapters import vips, slideio
 
 # TODO: Add pydoc to top of file, to each class, and each method
 
@@ -79,30 +79,30 @@ class ImageReaderTIFF(ImageReader):
         return ["tiff", "tif"]
 
 
-# class ImageReaderSVS(ImageReader):
-# 
-#     def __init__(self, filepath):
-# 
-#         super().__init__(filepath)
-#         self._adapter = slideio.SLIDEIOAdapter(filepath)
-#         self._image = self._adapter.get_image()
-# 
-#     def get_region(self, region_identifier, region_dims) -> np.ndarray:
-# 
-#         return self._adapter.get_region(region_identifier, region_dims)
-# 
-#     def number_of_regions(self, region_dims) -> int:
-# 
-#         return self._adapter.number_of_regions(region_dims)
-# 
-#     def get_width(self):
-# 
-#         return self._adapter.get_width()
-# 
-#     def get_height(self):
-# 
-#         return self._adapter.get_height()
-# 
-#     @classmethod
-#     def accepted_formats(cls):
-#         return ["svs"]
+class ImageReaderSVS(ImageReader):
+
+    def __init__(self, filepath):
+
+        super().__init__(filepath)
+        self._adapter = slideio.SLIDEIOAdapter(filepath)
+        self._image = self._adapter.get_image()
+
+    def get_region(self, region_identifier, region_dims) -> np.ndarray:
+
+        return self._adapter.get_region(region_identifier, region_dims)
+
+    def number_of_regions(self, region_dims) -> int:
+
+        return self._adapter.number_of_regions(region_dims)
+
+    def get_width(self):
+
+        return self._adapter.get_width()
+
+    def get_height(self):
+
+        return self._adapter.get_height()
+
+    @classmethod
+    def accepted_formats(cls):
+        return ["svs"]
