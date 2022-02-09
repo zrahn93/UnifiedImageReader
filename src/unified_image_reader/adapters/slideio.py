@@ -1,4 +1,8 @@
-import slideio
+try:
+    import slideio
+except Exception as e:
+    print("You have an issue with your SlideIO installation, it may be because of the dependency on Openslide. Contact Adin at adinbsolomon@gmail.com with any questions!")
+    raise e
 
 class RegionOutOfBoundsException(Exception):
     def __init__(self, region_identifier): super().__init__(region_identifier)

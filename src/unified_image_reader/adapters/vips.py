@@ -1,6 +1,11 @@
 
 import numpy as np
-import pyvips
+
+try:
+    import pyvips
+except Exception as e:
+    print("You have an issue with your pyvips installation, it may be because of the dependency on libvips. Contact Adin at adinbsolomon@gmail.com with any questions!")
+    raise e
 
 FORMAT_TO_DTYPE = {
     'uchar': np.uint8,
