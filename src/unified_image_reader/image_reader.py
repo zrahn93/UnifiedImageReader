@@ -5,8 +5,6 @@ import numpy as np
 
 from unified_image_reader.adapters import vips, slideio
 
-# TODO: Add pydoc to top of file, to each class, and each method
-
 class UnsupportedFormatException(Exception):
 
     def __init__(self, format): super().__init__(format)
