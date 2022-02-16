@@ -1,105 +1,82 @@
 
-import abc
 import os
+from typing import Iterable, Union
 import numpy as np
 
-from unified_image_reader.adapters import vips, slideio
+from unified_image_reader.adapters import Adapter, SlideIO, VIPS
 
-class UnsupportedFormatException(Exception):
+FORMAT_ADAPTER_MAP = {
+    "tif": VIPS,
+    "tiff": VIPS,
+    "svs": SlideIO
+}
 
-    def __init__(self, format): super().__init__(format)
+class UnsupportedFormatException(Exception): pass
+class InvalidCoordinatesException(Exception): pass
+class InvalidDimensionsException(Exception): pass
 
+class ImageReader():
 
-class ImageReader(abc.ABC):
-
-    def __init__(self, filepath: str):
-
-        assert os.path.isfile(
-            filepath), f"filepath is not a file --> {filepath}"
+    def __init__(self, filepath: str, adapter: Union[Adapter, None] = None):
+        # process filepath
+        assert os.path.isfile(filepath), f"filepath is not a file --> {filepath}"
         self.filepath = filepath
+        # initialize the adapter
+        self.adapter = None
+        if adapter is None: # choose based on file format
+            format = self.filepath.split('.')[-1]
+            adapter = FORMAT_ADAPTER_MAP.get(format)
+            if adapter is None:
+                raise UnsupportedFormatException(format)
+        self.adapter = adapter()
+    
+    def get_region(self, region_identifier: Union[int, Iterable], region_dims: Iterable):
+        # Make sure that region_coordinates is a tuple of length 2
+        region_coordinates = None
+        if isinstance(region_identifier, int):
+            region_coordinates = self.region_index_to_coordinates(region_identifier, region_dims)
+        elif isinstance(region_identifier, Iterable):
+            assert (len(region_identifier) == 2)
+            region_coordinates = region_identifier
+        # make sure that the region is in bounds
+        self.validate_region(region_coordinates, region_dims)
+        # call the implementation
+        return self._get_region(self, region_identifier, region_dims)
 
-    @classmethod
-    def get_reader(cls, filepath: str, format: str):
+    def _get_region(self, region_coordinates, region_dims) -> np.ndarray: 
+        return self.adapter.get_region(region_coordinates, region_dims)
 
-        for reader_class in cls.__subclasses__():
-            if format.lower() in reader_class.accepted_formats():
-                return reader_class(filepath)
+    def number_of_regions(self, region_dims: Iterable):
+        width, height = region_dims
+        return (self.width // width) * (self.height // height)
 
-        raise UnsupportedFormatException(format)
+    def validate_region(self, region_coordinates: Iterable, region_dims: Iterable) -> None:
+        # first ensure coordinates are in bounds
+        if not (len(region_coordinates) == 2): raise InvalidCoordinatesException(region_coordinates)
+        x, y = region_coordinates
+        if not (0 <= x < self.width): raise IndexError(x, self.width)
+        if not (0 <= y < self.height): raise IndexError(y, self.height)
+        # then check dimensions with coordinates
+        if not (len(region_dims) == 2): raise InvalidDimensionsException(region_dims)
+        width, height = region_dims
+        if not (0 < width and x+width < self.width): raise IndexError(x, width, self.width)
+        if not (0 < height and y+height < self.height): raise IndexError(y, height, self.height)
 
-    @classmethod
-    @abc.abstractmethod
-    def accepted_formats(cls) -> list: pass
+    def region_index_to_coordinates(self, region_index: int, region_dims: Iterable):
+        width, height = region_dims
+        width_regions = self.width // width
+        top = (region_index // width_regions) * height
+        left = (region_index % width_regions) * width
+        return (top, left)
 
-    @abc.abstractmethod
-    def get_region(self, region_identifier, region_dims) -> np.ndarray: pass
+    @property
+    def width(self):
+        return self.adapter.get_width()
 
-    @abc.abstractmethod
-    def number_of_regions(self, region_dims) -> int: pass
-
-    @abc.abstractmethod
-    def get_width(self) -> int: pass
-
-    @abc.abstractmethod
-    def get_height(self) -> int: pass
-
-
-class ImageReaderTIFF(ImageReader):
-
-    def __init__(self, filepath: str):
-
-        super().__init__(filepath)
-
-        # TODO - maybe you need to keep a reference to the image file here? PIL's Image initializer is a good example of why
-        # The image reference is currently unused here
-        self._adapter = vips.VIPSAdapter(filepath)
-        self._image = self._adapter.get_image()
-
-    def get_region(self, region_identifier, region_dims) -> np.ndarray:
-
-        return self._adapter.get_region(region_identifier, region_dims)
-
-    def number_of_regions(self, region_dims) -> int:
-
-        return self._adapter.number_of_regions(region_dims)
-
-    def get_width(self):
-
-        return self._adapter.get_width()
-
-    def get_height(self):
-
-        return self._adapter.get_height()
-
-    @classmethod
-    def accepted_formats(cls):
-        return ["tiff", "tif"]
-
-
-class ImageReaderSVS(ImageReader):
-
-    def __init__(self, filepath):
-
-        super().__init__(filepath)
-        self._adapter = slideio.SLIDEIOAdapter(filepath)
-        self._image = self._adapter.get_image()
-
-    def get_region(self, region_identifier, region_dims) -> np.ndarray:
-
-        return self._adapter.get_region(region_identifier, region_dims)
-
-    def number_of_regions(self, region_dims) -> int:
-
-        return self._adapter.number_of_regions(region_dims)
-
-    def get_width(self):
-
-        return self._adapter.get_width()
-
-    def get_height(self):
-
-        return self._adapter.get_height()
-
-    @classmethod
-    def accepted_formats(cls):
-        return ["svs"]
+    @property
+    def height(self):
+        return self.adapter.get_height()
+    
+    @property
+    def dims(self):
+        return self.width, self.height

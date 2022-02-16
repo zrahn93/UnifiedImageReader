@@ -15,15 +15,9 @@ DEFAULT_REGION_DIMS = (512, 512)
 
 class Image(object):
 
-    def __init__(self, filepath, format=None):
+    def __init__(self, filepath, reader=None):
         self.filepath = filepath
-        if format is None:
-            self.format = filepath.split('.')[-1]
-        elif '.' in format:
-            self.format = format.split('.')[-1]
-        else:
-            self.format = format
-        self.reader = ImageReader.get_reader(self.filepath, self.format)
+        self.reader = reader or ImageReader(filepath)
 
     def get_region(self, region_identifier, region_dims=DEFAULT_REGION_DIMS) -> np.ndarray:
         return self.reader.get_region(region_identifier, region_dims)
