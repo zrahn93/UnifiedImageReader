@@ -1,5 +1,5 @@
 
-import numpy
+import numpy as np
 
 try:
     import slideio
