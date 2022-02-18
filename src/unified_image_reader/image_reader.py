@@ -24,11 +24,11 @@ class ImageReader():
         # initialize the adapter
         self.adapter = None
         if adapter is None: # choose based on file format
-            format = self.filepath.split('.')[-1]
-            adapter = FORMAT_ADAPTER_MAP.get(format)
+            image_format = self.filepath.split('.')[-1]
+            adapter = FORMAT_ADAPTER_MAP.get(image_format)
             if adapter is None:
-                raise UnsupportedFormatException(format)
-        self.adapter = adapter()
+                raise UnsupportedFormatException(image_format)
+        self.adapter = adapter(filepath)
     
     def get_region(self, region_identifier: Union[int, Iterable], region_dims: Iterable):
         # Make sure that region_coordinates is a tuple of length 2
@@ -41,7 +41,7 @@ class ImageReader():
         # make sure that the region is in bounds
         self.validate_region(region_coordinates, region_dims)
         # call the implementation
-        return self._get_region(self, region_identifier, region_dims)
+        return self._get_region(region_identifier, region_dims)
 
     def _get_region(self, region_coordinates, region_dims) -> np.ndarray: 
         return self.adapter.get_region(region_coordinates, region_dims)
