@@ -31,8 +31,8 @@ class VIPS(Adapter):
 
     def get_height(self): return self._image.height
 
-    def get_region(self, region_identifier, region_dims) -> np.ndarray:
-        output_img = self._image.crop(*region_identifier, *region_dims)
+    def get_region(self, region_coordinates, region_dims) -> np.ndarray:
+        output_img = self._image.crop(*region_coordinates, *region_dims)
         np_output = np.ndarray(buffer=output_img.write_to_memory(), dtype=FORMAT_TO_DTYPE[output_img.format], shape=[
                                output_img.height, output_img.width, output_img.bands])
         return np_output

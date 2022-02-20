@@ -17,6 +17,8 @@ class InvalidDimensionsException(Exception): pass
 
 class ImageReader():
 
+    """ interface for adapters which specify reading behavior """
+
     def __init__(self, filepath: str, adapter: Union[Adapter, None] = None):
         # process filepath
         assert os.path.isfile(filepath), f"filepath is not a file --> {filepath}"
@@ -41,7 +43,7 @@ class ImageReader():
         # make sure that the region is in bounds
         self.validate_region(region_coordinates, region_dims)
         # call the implementation
-        return self._get_region(region_identifier, region_dims)
+        return self._get_region(region_coordinates, region_dims)
 
     def _get_region(self, region_coordinates, region_dims) -> np.ndarray: 
         return self.adapter.get_region(region_coordinates, region_dims)
@@ -51,23 +53,27 @@ class ImageReader():
         return (self.width // width) * (self.height // height)
 
     def validate_region(self, region_coordinates: Iterable, region_dims: Iterable) -> None:
+        """ checks that a region is within the bounds of the image """
+        def not_valid():
+            raise IndexError(region_coordinates, region_dims, self.dims)
         # first ensure coordinates are in bounds
         if not (len(region_coordinates) == 2): raise InvalidCoordinatesException(region_coordinates)
-        x, y = region_coordinates
-        if not (0 <= x < self.width): raise IndexError(x, self.width)
-        if not (0 <= y < self.height): raise IndexError(y, self.height)
+        left, top = region_coordinates
+        if not (0 <= left < self.width): not_valid()
+        if not (0 <= top < self.height): not_valid()
         # then check dimensions with coordinates
         if not (len(region_dims) == 2): raise InvalidDimensionsException(region_dims)
-        width, height = region_dims
-        if not (0 < width and x+width < self.width): raise IndexError(x, width, self.width)
-        if not (0 < height and y+height < self.height): raise IndexError(y, height, self.height)
+        region_width, region_height = region_dims
+        if not (0 < region_width and left+region_width <= self.width): not_valid()
+        if not (0 < region_height and top+region_height <= self.height): not_valid()
 
     def region_index_to_coordinates(self, region_index: int, region_dims: Iterable):
-        width, height = region_dims
-        width_regions = self.width // width
-        top = (region_index // width_regions) * height
-        left = (region_index % width_regions) * width
-        return (top, left)
+        """ converts the index of a region to coordinates of the top-left pixel of the region """
+        region_width, region_height = region_dims
+        width_regions = self.width // region_width
+        left = (region_index % width_regions) * region_width
+        top = (region_index // width_regions) * region_height
+        return (left, top)
 
     @property
     def width(self):
