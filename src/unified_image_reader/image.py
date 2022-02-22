@@ -27,11 +27,12 @@ class Image(object):
 
     @property
     def width(self):
-        return self.reader.get_width()
+        return self.reader.width
 
     @property
     def height(self):
-        return self.reader.get_height()
+        return self.reader.height
 
-    def get_dimensions(self):
+    @property
+    def dims(self):
         return self.width, self.height
