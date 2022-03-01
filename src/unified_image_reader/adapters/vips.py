@@ -25,7 +25,7 @@ FORMAT_TO_DTYPE = {
 class VIPS(Adapter):
 
     def __init__(self, filepath: str):
-        self._image = pyvips.Image.new_from_file(filepath)
+        self._image = pyvips.Image.new_from_file(filepath, access="random")
 
     def get_width(self): return self._image.width
 
