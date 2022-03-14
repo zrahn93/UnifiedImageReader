@@ -44,7 +44,6 @@ class Image(contextlib.AbstractContextManager):
         else:
             self._iter = 0
         return self
-    
     def __next__(self):
         if self._iter >= self.number_of_regions():
             raise StopIteration
@@ -52,3 +51,6 @@ class Image(contextlib.AbstractContextManager):
             region = self.get_region(self._iter)
             self._iter += 1
             return region
+
+    def __enter__(self, *args, **kwargs): return super().__enter__(*args, **kwargs)
+    def __exit__(self, *args, **kwargs): return super().__exit__(*args, **kwargs)
