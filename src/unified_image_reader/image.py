@@ -7,14 +7,14 @@
     3) Include functionality for counting the number of regions and the image's dimensions
 """
 
+import contextlib
+
 import numpy as np
 
+from .config import DEFAULT_REGION_DIMS
 from .image_reader import ImageReader
 
-DEFAULT_REGION_DIMS = (512, 512)
-
-
-class Image(object):
+class Image(contextlib.AbstractContextManager):
 
     """ An image to be streamed into a specialized reader """
 
@@ -28,6 +28,7 @@ class Image(object):
         """
         self.filepath = filepath
         self.reader = reader or ImageReader(filepath)
+        self._iter = None
 
     def get_region(self, region_identifier, region_dims=DEFAULT_REGION_DIMS) -> np.ndarray:
         """
@@ -65,3 +66,20 @@ class Image(object):
     @property
     def dims(self):
         return self.width, self.height
+
+    def __iter__(self):
+        if self._iter is not None:
+            raise Exception(type(self._iter), self._iter)
+        else:
+            self._iter = 0
+        return self
+    def __next__(self):
+        if self._iter >= self.number_of_regions():
+            raise StopIteration
+        else:
+            region = self.get_region(self._iter)
+            self._iter += 1
+            return region
+
+    def __enter__(self, *args, **kwargs): return super().__enter__(*args, **kwargs)
+    def __exit__(self, *args, **kwargs): return super().__exit__(*args, **kwargs)

@@ -36,7 +36,7 @@ class VIPS(Adapter):
         Parameters:
             filepath (str): Filepath to image file to be opened 
         """
-        self._image = pyvips.Image.new_from_file(filepath)
+        self._image = pyvips.Image.new_from_file(filepath, access="random")
 
     def get_width(self): return self._image.width
 
