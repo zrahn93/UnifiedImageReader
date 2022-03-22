@@ -19,9 +19,18 @@ FORMAT_ADAPTER_MAP = {
     "svs": SlideIO
 }
 
-class UnsupportedFormatException(Exception): pass
-class InvalidCoordinatesException(Exception): pass
-class InvalidDimensionsException(Exception): pass
+
+class UnsupportedFormatException(Exception):
+    pass
+
+
+class InvalidCoordinatesException(Exception):
+    pass
+
+
+class InvalidDimensionsException(Exception):
+    pass
+
 
 class ImageReader():
 
@@ -37,17 +46,18 @@ class ImageReader():
 
         """
         # process filepath
-        assert os.path.isfile(filepath), f"filepath is not a file --> {filepath}"
+        assert os.path.isfile(
+            filepath), f"filepath is not a file --> {filepath}"
         self.filepath = filepath
         # initialize the adapter
         self.adapter = None
-        if adapter is None: # choose based on file format
+        if adapter is None:  # choose based on file format
             image_format = self.filepath.split('.')[-1]
             adapter = FORMAT_ADAPTER_MAP.get(image_format)
             if adapter is None:
                 raise UnsupportedFormatException(image_format)
         self.adapter = adapter(filepath)
-    
+
     def get_region(self, region_identifier: Union[int, Iterable], region_dims: Iterable):
         """
         Get a rectangular region from an image using an adapter's implementation after validating and extracting region data
@@ -55,14 +65,15 @@ class ImageReader():
         Parameters:
             region_identifier(int | Tuple[int]): An (x,y) coordinate tuple or an indexed region based on region dimensions
             region_dims(Tuple[int]): An (x,y) coordinate tuple representing the region dimensions
-        
+
         Returns:
             np.ndarray: A numpy array representative of the rectangular region from the image
         """
         # Make sure that region_coordinates is a tuple of length 2
         region_coordinates = None
         if isinstance(region_identifier, int):
-            region_coordinates = self.region_index_to_coordinates(region_identifier, region_dims)
+            region_coordinates = self.region_index_to_coordinates(
+                region_identifier, region_dims)
         elif isinstance(region_identifier, Iterable):
             assert (len(region_identifier) == 2)
             region_coordinates = region_identifier
@@ -78,10 +89,10 @@ class ImageReader():
         Parameters:
             region_coordinates(Tuple[int]): An (x,y) coordinate tuple representing the top-left pixel of the region
             region_dims(Tuple[int]): A tuple representing the width and height dimensions of the region
-        
+
         Returns:
             np.ndarray: A numpy array representative of the rectangular region from the image
-        """ 
+        """
         return self.adapter.get_region(region_coordinates, region_dims)
 
     def number_of_regions(self, region_dims: Iterable):
@@ -109,15 +120,21 @@ class ImageReader():
             """ Wrapper function to raise an error on invalid coordinates or dimensions"""
             raise IndexError(region_coordinates, region_dims, self.dims)
         # first ensure coordinates are in bounds
-        if not (len(region_coordinates) == 2): raise InvalidCoordinatesException(region_coordinates)
+        if not (len(region_coordinates) == 2):
+            raise InvalidCoordinatesException(region_coordinates)
         left, top = region_coordinates
-        if not (0 <= left < self.width): not_valid()
-        if not (0 <= top < self.height): not_valid()
+        if not (0 <= left < self.width):
+            not_valid()
+        if not (0 <= top < self.height):
+            not_valid()
         # then check dimensions with coordinates
-        if not (len(region_dims) == 2): raise InvalidDimensionsException(region_dims)
+        if not (len(region_dims) == 2):
+            raise InvalidDimensionsException(region_dims)
         region_width, region_height = region_dims
-        if not (0 < region_width and left+region_width <= self.width): not_valid()
-        if not (0 < region_height and top+region_height <= self.height): not_valid()
+        if not (0 < region_width and left+region_width <= self.width):
+            not_valid()
+        if not (0 < region_height and top+region_height <= self.height):
+            not_valid()
 
     def region_index_to_coordinates(self, region_index: int, region_dims: Iterable):
         """
@@ -126,7 +143,7 @@ class ImageReader():
         Parameters:
             region_index(int): The nth region of the image (where n >= 0) based on region dimensions
             region_dims(Tuple[int]): A tuple representing the width and height dimensions of the region
-        
+
         Returns:
             Tuple(int): An (x,y) coordinate tuple representing the top-left pixel of the region
         """
@@ -143,7 +160,7 @@ class ImageReader():
     @property
     def height(self):
         return self.adapter.get_height()
-    
+
     @property
     def dims(self):
         return self.width, self.height

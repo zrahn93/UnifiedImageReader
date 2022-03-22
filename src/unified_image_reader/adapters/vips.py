@@ -27,6 +27,7 @@ FORMAT_TO_DTYPE = {
     'dpcomplex': np.complex128
 }
 
+
 class VIPS(Adapter):
 
     def __init__(self, filepath: str):

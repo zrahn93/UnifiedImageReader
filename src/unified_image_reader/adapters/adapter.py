@@ -8,8 +8,9 @@ from typing import Iterable
 
 import numpy as np
 
+
 class Adapter(abc.ABC):
-    
+
     @abc.abstractmethod
     def get_region(self, region_coordinates: Iterable, region_dims: Iterable) -> np.ndarray:
         """ 
@@ -21,15 +22,15 @@ class Adapter(abc.ABC):
 
         Returns:
             np.ndarray: A numpy array representative of the rectangular region from the image
-        """ 
+        """
         pass
 
     @abc.abstractmethod
-    def get_width() -> int: 
+    def get_width() -> int:
         """ Get the width of the image """
         pass
 
     @abc.abstractmethod
     def get_height() -> int:
-        """ Get the height of the image """ 
+        """ Get the height of the image """
         pass

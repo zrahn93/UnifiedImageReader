@@ -14,6 +14,7 @@ import numpy as np
 from .config import DEFAULT_REGION_DIMS
 from .image_reader import ImageReader
 
+
 class Image(contextlib.AbstractContextManager):
 
     """ An image to be streamed into a specialized reader """
@@ -49,7 +50,7 @@ class Image(contextlib.AbstractContextManager):
 
         Parameters:
             region_dims (Tuple[int]): Region dimensions which are 512x512 by default (optional)
-        
+
         Returns:
             int: Number of regions in the image
         """
@@ -73,6 +74,7 @@ class Image(contextlib.AbstractContextManager):
         else:
             self._iter = 0
         return self
+
     def __next__(self):
         if self._iter >= self.number_of_regions():
             raise StopIteration
@@ -81,5 +83,8 @@ class Image(contextlib.AbstractContextManager):
             self._iter += 1
             return region
 
-    def __enter__(self, *args, **kwargs): return super().__enter__(*args, **kwargs)
-    def __exit__(self, *args, **kwargs): return super().__exit__(*args, **kwargs)
+    def __enter__(
+        self, *args, **kwargs): return super().__enter__(*args, **kwargs)
+
+    def __exit__(self, *args, **
+                 kwargs): return super().__exit__(*args, **kwargs)

@@ -14,6 +14,7 @@ except Exception as e:
 
 from .adapter import Adapter
 
+
 class SlideIO(Adapter):
 
     def __init__(self, filepath):
