@@ -77,6 +77,8 @@ class ImageReader():
         elif isinstance(region_identifier, Iterable):
             assert (len(region_identifier) == 2)
             region_coordinates = region_identifier
+        else:
+            raise TypeError(f"{type(region_coordinates)=}, {region_coordinates=}")
         # make sure that the region is in bounds
         self.validate_region(region_coordinates, region_dims)
         # call the implementation
@@ -110,11 +112,13 @@ class ImageReader():
 
     def validate_region(self, region_coordinates: Iterable, region_dims: Iterable) -> None:
         """
-        Checks that a region is within the bounds of the image 
+        Checks that a region is within the bounds of the image
 
         Parameters:
-             region_coordinates(Tuple[int]): An (x,y) coordinate tuple representing the top-left pixel of the region
-             region_dims(Tuple[int]): A tuple representing the width and height dimensions of the region
+             region_coordinates(Tuple[int]): An (x,y) coordinate tuple representing
+                                             the top-left pixel of the region
+             region_dims(Tuple[int]): A tuple representing the width and height dimensions
+                                      of the region
         """
         def not_valid():
             """ Wrapper function to raise an error on invalid coordinates or dimensions"""
