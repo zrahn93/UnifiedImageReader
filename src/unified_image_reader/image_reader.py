@@ -78,7 +78,7 @@ class ImageReader():
             assert (len(region_identifier) == 2)
             region_coordinates = region_identifier
         else:
-            raise TypeError(f"{type(region_coordinates)=}, {region_coordinates=}")
+            raise TypeError(f"region_identifier should be either int or Iterable but is {type(region_identifier)=}, {region_identifier=}")
         # make sure that the region is in bounds
         self.validate_region(region_coordinates, region_dims)
         # call the implementation

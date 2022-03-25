@@ -83,6 +83,9 @@ class Image(contextlib.AbstractContextManager):
             self._iter += 1
             return region
 
+    def __len__(self):
+        return self.number_of_regions()
+
     def __enter__(
         self, *args, **kwargs): return super().__enter__(*args, **kwargs)
 
