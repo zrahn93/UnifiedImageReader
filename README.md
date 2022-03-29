@@ -4,8 +4,8 @@
 classDiagram
     Image *-- ImageReader
     ImageReader *-- Adapter
-    Adapter <-- VIPS
-    Adapter <-- SlideIO
+    Adapter <|-- VIPS
+    Adapter <|-- SlideIO
     class Image {
         get_region()
         number_of_regions()
