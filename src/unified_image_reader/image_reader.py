@@ -33,10 +33,31 @@ class InvalidDimensionsException(Exception):
 
 
 class ImageReader():
+    """
+    ImageReader _summary_
+
+    :raises UnsupportedFormatException: _description_
+    :raises TypeError: _description_
+    :raises an: _description_
+    :raises IndexError: _description_
+    :raises InvalidCoordinatesException: _description_
+    :raises InvalidDimensionsException: _description_
+    :return: _description_
+    :rtype: _type_
+    """    
 
     """ Interface for adapters which specify reading behavior """
 
     def __init__(self, filepath: str, adapter: Union[Adapter, None] = None):
+        """
+        __init__ _summary_
+
+        :param filepath: _description_
+        :type filepath: str
+        :param adapter: _description_, defaults to None
+        :type adapter: Union[Adapter, None], optional
+        :raises UnsupportedFormatException: _description_
+        """        
         """
         Initialize ImageReader object
 
@@ -56,6 +77,14 @@ class ImageReader():
         self.adapter = adapter(filepath)
 
     def get_region(self, region_identifier: Union[int, Iterable], region_dims: Iterable):
+
+        """
+         _summary_
+
+        :raises TypeError: _description_
+        :return: _description_
+        :rtype: _type_
+        """        
         """
         Get a rectangular region from an image using an adapter's implementation after validating and extracting region data
 
@@ -75,13 +104,24 @@ class ImageReader():
             assert (len(region_identifier) == 2)
             region_coordinates = region_identifier
         else:
-            raise TypeError(f"region_identifier should be either int or Iterable but is {type(region_identifier)=}, {region_identifier=}")
+            raise TypeError(
+                f"region_identifier should be either int or Iterable but is {type(region_identifier)=}, {region_identifier=}")
         # make sure that the region is in bounds
         self.validate_region(region_coordinates, region_dims)
         # call the implementation
         return self._get_region(region_coordinates, region_dims)
 
     def _get_region(self, region_coordinates, region_dims) -> np.ndarray:
+        """
+        _get_region _summary_
+
+        :param region_coordinates: _description_
+        :type region_coordinates: _type_
+        :param region_dims: _description_
+        :type region_dims: _type_
+        :return: _description_
+        :rtype: np.ndarray
+        """        
         """
         Call an adapter's implementation to get a rectangular image region
 
@@ -96,6 +136,14 @@ class ImageReader():
 
     def number_of_regions(self, region_dims: Iterable):
         """
+        number_of_regions _summary_
+
+        :param region_dims: _description_
+        :type region_dims: Iterable
+        :return: _description_
+        :rtype: _type_
+        """        
+        """
         Calculates the number of regions in the image based on the dimensions of each region
 
         Parameters:
@@ -109,6 +157,18 @@ class ImageReader():
 
     def validate_region(self, region_coordinates: Iterable, region_dims: Iterable) -> None:
         """
+        validate_region _summary_
+
+        :param region_coordinates: _description_
+        :type region_coordinates: Iterable
+        :param region_dims: _description_
+        :type region_dims: Iterable
+        :raises an: _description_
+        :raises IndexError: _description_
+        :raises InvalidCoordinatesException: _description_
+        :raises InvalidDimensionsException: _description_
+        """        
+        """
         Checks that a region is within the bounds of the image
 
         Parameters:
@@ -118,6 +178,12 @@ class ImageReader():
                                       of the region
         """
         def not_valid():
+            """
+            not_valid _summary_
+
+            :raises an: _description_
+            :raises IndexError: _description_
+            """            
             """ Wrapper function to raise an error on invalid coordinates or dimensions"""
             raise IndexError(region_coordinates, region_dims, self.dims)
         # first ensure coordinates are in bounds
@@ -139,6 +205,16 @@ class ImageReader():
 
     def region_index_to_coordinates(self, region_index: int, region_dims: Iterable):
         """
+        region_index_to_coordinates _summary_
+
+        :param region_index: _description_
+        :type region_index: int
+        :param region_dims: _description_
+        :type region_dims: Iterable
+        :return: _description_
+        :rtype: _type_
+        """        
+        """
         Converts the index of a region to coordinates of the top-left pixel of the region
 
         Parameters:
@@ -156,12 +232,30 @@ class ImageReader():
 
     @property
     def width(self):
+        """
+        width _summary_
+
+        :return: _description_
+        :rtype: _type_
+        """        
         return self.adapter.get_width()
 
     @property
     def height(self):
+        """
+        height _summary_
+
+        :return: _description_
+        :rtype: _type_
+        """        
         return self.adapter.get_height()
 
     @property
     def dims(self):
+        """
+        dims _summary_
+
+        :return: _description_
+        :rtype: _type_
+        """        
         return self.width, self.height
