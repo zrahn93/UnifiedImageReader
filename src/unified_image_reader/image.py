@@ -8,18 +8,21 @@
 """
 
 import contextlib
+from types import TracebackType
+from typing import Any, Optional, Type
 
 import numpy as np
 
-from .config import DEFAULT_REGION_DIMS
-from .image_reader import ImageReader
+from . import config
+from . import image_reader
+from . import util
 
 
 class Image(contextlib.AbstractContextManager):
 
     """ An image to be streamed into a specialized reader """
 
-    def __init__(self, filepath, reader=None):
+    def __init__(self, filepath: util.FilePath, reader: Optional[image_reader.ImageReader] = None):
         """
         Initialize Image object
 
@@ -28,10 +31,10 @@ class Image(contextlib.AbstractContextManager):
             reader: Object that serves as an interface to reading the image file (optional)
         """
         self.filepath = filepath
-        self.reader = reader or ImageReader(filepath)
+        self.reader = reader or image_reader.ImageReader(filepath)
         self._iter = None
 
-    def get_region(self, region_identifier, region_dims=DEFAULT_REGION_DIMS) -> np.ndarray:
+    def get_region(self, region_identifier: util.RegionIdentifier, region_dims: util.RegionDimensions = config.DEFAULT_REGION_DIMS) -> np.ndarray:
         """
         Get a rectangular region from the image
 
@@ -44,7 +47,7 @@ class Image(contextlib.AbstractContextManager):
         """
         return self.reader.get_region(region_identifier, region_dims)
 
-    def number_of_regions(self, region_dims=DEFAULT_REGION_DIMS) -> int:
+    def number_of_regions(self, region_dims: util.RegionDimensions = config.DEFAULT_REGION_DIMS) -> int:
         """
         Get total number of regions from the image based on region dimensions
 
@@ -57,15 +60,15 @@ class Image(contextlib.AbstractContextManager):
         return self.reader.number_of_regions(region_dims)
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.reader.width
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.reader.height
 
     @property
-    def dims(self):
+    def dims(self) -> util.RegionDimensions:
         return self.width, self.height
 
     def __iter__(self):
@@ -86,8 +89,8 @@ class Image(contextlib.AbstractContextManager):
     def __len__(self):
         return self.number_of_regions()
 
-    def __enter__(
-        self, *args, **kwargs): return super().__enter__(*args, **kwargs)
+    def __enter__(self) -> Any:
+        return super().__enter__()
 
-    def __exit__(self, *args, **
-                 kwargs): return super().__exit__(*args, **kwargs)
+    def __exit__(self, **kwargs) -> Optional[bool]:
+        return super().__exit__(**kwargs)
