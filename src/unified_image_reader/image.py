@@ -9,12 +9,16 @@
 """
 
 import contextlib
+from types import TracebackType
+from typing import Any, Optional, Type
 
 import numpy as np
 
-from .config import DEFAULT_REGION_DIMS
-from .image_reader import ImageReader
+from . import config
+from . import image_reader
+from . import util
 
+DEFAULT_REGION_DIMS = (512, 512)
 
 class Image(contextlib.AbstractContextManager):
 
@@ -31,7 +35,7 @@ class Image(contextlib.AbstractContextManager):
         :type reader: ImageReader or custom class supportive of the same functions, optional
         """
         self.filepath = filepath
-        self.reader = reader or ImageReader(filepath)
+        self.reader = reader or image_reader.ImageReader(filepath)
         self._iter = None
 
     def get_region(self, region_identifier, region_dims=DEFAULT_REGION_DIMS) -> np.ndarray:
@@ -126,20 +130,5 @@ class Image(contextlib.AbstractContextManager):
         """        
         return self.number_of_regions()
 
-    def __enter__(self, *args, **kwargs): 
-        """
-        __enter__ _summary_
-
-        :return: _description_
-        :rtype: _type_
-        """
-        return super().__enter__(*args, **kwargs)
-
-    def __exit__(self, *args, **kwargs):
-        """
-        __exit__ _summary_
-
-        :return: _description_
-        :rtype: _type_
-        """        
-        return super().__exit__(*args, **kwargs)
+    def __exit__(self, **kwargs) -> Optional[bool]:
+        return super().__exit__(**kwargs)

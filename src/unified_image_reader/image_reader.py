@@ -57,6 +57,7 @@ class ImageReader():
         # process filepath
         assert os.path.isfile(
             filepath), f"filepath is not a file --> {filepath}"
+       
         self.filepath = filepath
         # initialize the adapter
         self.adapter = None
