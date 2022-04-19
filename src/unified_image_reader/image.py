@@ -2,9 +2,10 @@
 """
     Image
 
-    1) Provide a filepath, and optionally a reader interface for the image file
+    1) Provide a filepath, and optionally a reader interface for the image file. The optional reader can be a specified built-in one or a custom class
     2) Include functionality for reading regions from the image
     3) Include functionality for counting the number of regions and the image's dimensions
+    
 """
 
 import contextlib
@@ -17,23 +18,17 @@ from .image_reader import ImageReader
 
 class Image(contextlib.AbstractContextManager):
 
-    """ An image to be streamed into a specialized reader """
+    """ 
+    Image An image to be streamed into a specialized reader 
+    """
 
     def __init__(self, filepath, reader=None):
-        """
-        __init__ _summary_
+        """__init__ Initialize Image object
 
-        :param filepath: _description_
-        :type filepath: _type_
-        :param reader: _description_, defaults to None
-        :type reader: _type_, optional
-        """        
-        """
-        Initialize Image object
-
-        Parameters:
-            filepath (str): Filepath to image file to be opened
-            reader: Object that serves as an interface to reading the image file (optional)
+        :param filepath: Filepath to image file to be opened
+        :type filepath: str
+        :param reader: Interface to reading the image file, defaults to None
+        :type reader: ImageReader or custom class supportive of the same functions, optional
         """
         self.filepath = filepath
         self.reader = reader or ImageReader(filepath)
@@ -41,84 +36,65 @@ class Image(contextlib.AbstractContextManager):
 
     def get_region(self, region_identifier, region_dims=DEFAULT_REGION_DIMS) -> np.ndarray:
         """
-        get_region _summary_
+        get_region Get a pixel region from the image
 
-        :param region_identifier: _description_
-        :type region_identifier: _type_
-        :param region_dims: _description_, defaults to DEFAULT_REGION_DIMS
-        :type region_dims: _type_, optional
-        :return: _description_
+        :param region_identifier: A  set of (width, height) coordinates or an indexed region based on region dimensions
+        :type region_identifier: Union[int, Iterable]
+        :param region_dims: A set of (width, height) coordinates representing the region dimensions, defaults to DEFAULT_REGION_DIMS
+        :type region_dims: Iterable, optional
+        :return: A numpy array representative of the pixel region from the image
         :rtype: np.ndarray
-        """        
-        """
-        Get a rectangular region from the image
-
-        Parameters:
-            region_identifier(Tuple[int]| int): An (x,y) coordinate tuple or an indexed region based on region dimensions
-            region_dims (Tuple[int]): An (x,y) coordinate tuple representing the region dimensions, which are 512x512 by default (optional)
-
-        Returns:
-            np.ndarray: A numpy array representative of the rectangular region from the image
         """
         return self.reader.get_region(region_identifier, region_dims)
 
     def number_of_regions(self, region_dims=DEFAULT_REGION_DIMS) -> int:
         """
-        number_of_regions _summary_
+        number_of_regions Get total number of regions from the image based on region dimensions
 
-        :param region_dims: _description_, defaults to DEFAULT_REGION_DIMS
-        :type region_dims: _type_, optional
-        :return: _description_
+        :param region_dims: A set of (width, height) coordinates representing the region dimensions, defaults to DEFAULT_REGION_DIMS
+        :type region_dims: Iterable, optional
+        :return: Number of regions in the image
         :rtype: int
-        """        
-        """
-        Get total number of regions from the image based on region dimensions
-
-        Parameters:
-            region_dims (Tuple[int]): Region dimensions which are 512x512 by default (optional)
-
-        Returns:
-            int: Number of regions in the image
         """
         return self.reader.number_of_regions(region_dims)
 
     @property
     def width(self):
         """
-        width _summary_
+        width Get the width property of the image using its reader
 
-        :return: _description_
-        :rtype: _type_
+        :return: Width in pixels
+        :rtype: int
         """        
         return self.reader.width
 
     @property
     def height(self):
         """
-        height _summary_
+        height Get the height property of the image using its reader
 
-        :return: _description_
-        :rtype: _type_
+        :return: Height in pixels
+        :rtype: int
         """        
         return self.reader.height
 
     @property
     def dims(self):
         """
-        dims _summary_
+        dims Get the width and height properties of the image
 
-        :return: _description_
-        :rtype: _type_
+        :return: Width and height in pixels
+        :rtype: Tuple[int]
         """        
         return self.width, self.height
 
     def __iter__(self):
         """
-        __iter__ _summary_
+        __iter__ Initialize Image object iterator
 
-        :raises Exception: _description_
-        :return: _description_
-        :rtype: _type_
+        :raises Exception: Iterator already initialized but is called again
+        :return: Iterator for Image object
+        :rtype: Image
         """        
         if self._iter is not None:
             raise Exception(type(self._iter), self._iter)
@@ -128,11 +104,11 @@ class Image(contextlib.AbstractContextManager):
 
     def __next__(self):
         """
-        __next__ _summary_
+        __next__ Get the next pixel region index in a sequence of iterating through an Image object
 
-        :raises StopIteration: _description_
-        :return: _description_
-        :rtype: _type_
+        :raises StopIteration: Iterator has reached the last region in the image
+        :return: Next pixel region index
+        :rtype: int
         """        
         if self._iter >= self.number_of_regions():
             raise StopIteration
@@ -143,10 +119,10 @@ class Image(contextlib.AbstractContextManager):
 
     def __len__(self):
         """
-        __len__ _summary_
+        __len__ Get the number of pixel regions in an iterable sequence of an Image object
 
-        :return: _description_
-        :rtype: _type_
+        :return: The number of pixel regions in the Image object
+        :rtype: int
         """        
         return self.number_of_regions()
 
