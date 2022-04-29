@@ -4,6 +4,9 @@
     An adapter that uses pyvips, the Python extension of the libvips library, to implement image reading behavior
     Adapter currently mapped to reading .tif, tiff files
 """
+
+from datetime import datetime
+
 import numpy as np
 
 try:
@@ -13,6 +16,7 @@ except Exception as e:
     raise e
 
 from .adapter import Adapter
+from . import config
 
 FORMAT_TO_DTYPE = {
     'uchar': np.uint8,
@@ -45,7 +49,21 @@ class VIPS(Adapter):
 
     def get_region(self, region_coordinates, region_dims) -> np.ndarray:
         """ Calls the crop method of a VipsImage object to create a cropped image for output to a numpy array """
-        output_img = self._image.crop(*region_coordinates, *region_dims)
-        np_output = np.ndarray(buffer=output_img.write_to_memory(), dtype=FORMAT_TO_DTYPE[output_img.format], shape=[
-                               output_img.height, output_img.width, output_img.bands])
-        return np_output
+        if config.VIPS_GET_REGION == "IMAGE_CROP":
+            output_img = self._image.crop(*region_coordinates, *region_dims)
+            np_output = np.ndarray(
+                buffer=output_img.write_to_memory(),
+                dtype=np.uint8,
+                shape=[output_img.height, output_img.width, output_img.bands]
+            )
+            return np_output
+        elif config.VIPS_GET_REGION == "REGION_FETCH":
+            vips_region = pyvips.Region.new(self._image)
+            bytestring_buffer = vips_region.fetch(
+                *region_coordinates, *region_dims)
+            np_output = np.frombuffer(bytestring_buffer, dtype=np.uint8)
+            region = np_output.reshape(*region_dims, 3)
+            return region
+        else:
+            raise Exception(
+                f"Invalid vips get region mode {config.VIPS_GET_REGION=}")
