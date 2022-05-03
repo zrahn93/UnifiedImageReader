@@ -20,6 +20,7 @@ from . import util
 
 DEFAULT_REGION_DIMS = (512, 512)
 
+
 class Image(contextlib.AbstractContextManager):
 
     """ 
@@ -69,7 +70,7 @@ class Image(contextlib.AbstractContextManager):
 
         :return: Width in pixels
         :rtype: int
-        """        
+        """
         return self.reader.width
 
     @property
@@ -79,7 +80,7 @@ class Image(contextlib.AbstractContextManager):
 
         :return: Height in pixels
         :rtype: int
-        """        
+        """
         return self.reader.height
 
     @property
@@ -89,7 +90,7 @@ class Image(contextlib.AbstractContextManager):
 
         :return: Width and height in pixels
         :rtype: Tuple[int]
-        """        
+        """
         return self.width, self.height
 
     def __iter__(self):
@@ -99,11 +100,8 @@ class Image(contextlib.AbstractContextManager):
         :raises Exception: Iterator already initialized but is called again
         :return: Iterator for Image object
         :rtype: Image
-        """        
-        if self._iter is not None:
-            raise Exception(type(self._iter), self._iter)
-        else:
-            self._iter = 0
+        """
+        self._iter = 0
         return self
 
     def __next__(self):
@@ -113,7 +111,7 @@ class Image(contextlib.AbstractContextManager):
         :raises StopIteration: Iterator has reached the last region in the image
         :return: Next pixel region index
         :rtype: int
-        """        
+        """
         if self._iter >= self.number_of_regions():
             raise StopIteration
         else:
@@ -127,7 +125,7 @@ class Image(contextlib.AbstractContextManager):
 
         :return: The number of pixel regions in the Image object
         :rtype: int
-        """        
+        """
         return self.number_of_regions()
 
     def __exit__(self, **kwargs) -> Optional[bool]:
