@@ -42,7 +42,7 @@ class ImageReader():
     :raises IndexError: The top-left pixel or pixel region dimensions are out of bounds of the image dimensions
     :raises InvalidCoordinatesException: The top-left pixel rwas not provided in (width, height) format
     :raises InvalidDimensionsException: Dimensions of the pixel region were not provided in (width, height) format
-    """    
+    """
 
     def __init__(self, filepath: str, adapter: Union[Adapter, None] = None):
         """
@@ -53,11 +53,11 @@ class ImageReader():
         :param adapter: Object which specifies reading behavior, defaults to None
         :type adapter: Union[Adapter, None], optional
         :raises UnsupportedFormatException: The adapter does not support the image format
-        """        
+        """
         # process filepath
         assert os.path.isfile(
             filepath), f"filepath is not a file --> {filepath}"
-       
+
         self.filepath = filepath
         # initialize the adapter
         self.adapter = None
@@ -69,7 +69,6 @@ class ImageReader():
         self.adapter = adapter(filepath)
 
     def get_region(self, region_identifier: Union[int, Iterable], region_dims: Iterable):
-
         """
         get_region Get a pixel region from an image using an adapter's implementation after validation and extracting region data
 
@@ -80,7 +79,7 @@ class ImageReader():
         :type region_dims: Iterable
         :return: A numpy array representative of the pixel region from the image
         :rtype: np.ndarray
-        """        
+        """
         # Make sure that region_coordinates is a tuple of length 2
         region_coordinates = None
         if isinstance(region_identifier, int):
@@ -107,8 +106,8 @@ class ImageReader():
         :type region_dims: Iterable
         :return: Implementation resulting in a numpy array representative of the pixel region from the image
         :rtype: np.ndarray
-        """        
-        
+        """
+
         return self.adapter.get_region(region_coordinates, region_dims)
 
     def number_of_regions(self, region_dims: Iterable):
@@ -119,8 +118,8 @@ class ImageReader():
         :type region_dims: Iterable
         :return: The number of regions
         :rtype: int
-        """        
-        
+        """
+
         width, height = region_dims
         return (self.width // width) * (self.height // height)
 
@@ -135,8 +134,8 @@ class ImageReader():
         :raises IndexError: The top-left pixel or pixel region dimensions are out of the bounds of the image dimensions
         :raises InvalidCoordinatesException: The top-left pixel was not presented in (width, height) format
         :raises InvalidDimensionsException: Dimensions of the pixel region were not presented in (width, height) format
-        """        
-        
+        """
+
         def not_valid():
             """
             not_valid Wrapper function to raise an error on invalid coordinates or dimensions
@@ -172,8 +171,8 @@ class ImageReader():
         :type region_dims: Iterable
         :return: A set of (width, height) coordinates representing the top-left pixel of the region
         :rtype: Iterable
-        """        
-        
+        """
+
         region_width, region_height = region_dims
         width_regions = self.width // region_width
         left = (region_index % width_regions) * region_width
@@ -187,7 +186,7 @@ class ImageReader():
 
         :return: Width in pixels
         :rtype: int
-        """        
+        """
         return self.adapter.get_width()
 
     @property
@@ -197,7 +196,7 @@ class ImageReader():
 
         :return: Height in pixels
         :rtype: int
-        """        
+        """
         return self.adapter.get_height()
 
     @property
@@ -207,5 +206,5 @@ class ImageReader():
 
         :return: Width and height in pixels
         :rtype: Iterable
-        """        
+        """
         return self.width, self.height

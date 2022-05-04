@@ -21,7 +21,7 @@ class Adapter(abc.ABC):
         :type region_dims: Iterable
         :return: A numpy array representative of the pixel region from the image
         :rtype: np.ndarray
-        """        
+        """
         pass
 
     @abc.abstractmethod

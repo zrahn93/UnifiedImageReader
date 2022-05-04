@@ -22,8 +22,8 @@ class SlideIO(Adapter):
 
         :param filepath: Filepath to image file to be opened
         :type filepath: str
-        """        
-        
+        """
+
         self._image = slideio.open_slide(filepath, "SVS").get_scene(0)
 
     def get_width(self):
@@ -31,7 +31,7 @@ class SlideIO(Adapter):
 
         :return: Height in pixels
         :rtype: int
-        """        
+        """
         return self._image.size[0]
 
     def get_height(self):
@@ -39,7 +39,7 @@ class SlideIO(Adapter):
 
         :return: Width in pixels
         :rtype: int
-        """        
+        """
         return self._image.size[1]
 
     def get_region(self, region_coordinates, region_dims) -> np.ndarray:
@@ -51,7 +51,7 @@ class SlideIO(Adapter):
         :type region_dims: Iterable
         :return: A numpy array representative of the pixel region from the image
         :rtype: np.ndarray
-        """        
+        """
         """ Calls the read_block method of a SlideIO Scene object to create an unscaled rectangular region of the image as a numpy array """
         np_array = self._image.read_block((*region_coordinates, *region_dims))
         return np_array
