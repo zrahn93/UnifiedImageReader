@@ -10,6 +10,8 @@
 
 import os
 from typing import Iterable, Union
+
+import cv2 as cv
 import numpy as np
 
 from unified_image_reader.adapters import Adapter, SlideIO, VIPS
@@ -208,3 +210,47 @@ class ImageReader():
         :rtype: Iterable
         """
         return self.width, self.height
+
+
+class ImageReaderDirectory(ImageReader):
+    def __init__(self, data):
+        if isinstance(data, str):
+            self._dir = data
+            if not os.path.isdir(self._dir):
+                raise Exception(f"{data=} should be a path to a directory")
+            self._region_files = [os.path.join(
+                self._dir, p) for p in os.listdir(self._dir)]
+        elif isinstance(data, [list, tuple]):
+            self._region_files = data
+        else:
+            raise TypeError(f"Didn't expect {type(data)=}, {data=}")
+        for region_filepath in self._region_files:
+            if not os.path.isfile(region_filepath):
+                raise Exception(
+                    f"self._region_files should be composed of filepaths to existing image files but includes {region_filepath}")
+        self._region_files.sort()
+
+    def get_region(self, region_identifier, region_dims=None):
+        if not isinstance(region_identifier, int):
+            raise NotImplementedError(
+                "This ImageReader only operates on aggregated region files which are indexed alphabetically. Region coordinates are not supported.")
+        if not (0 <= region_identifier < self.number_of_regions()):
+            raise IndexError(
+                f"{region_identifier=}, {self.number_of_regions()=}")
+        region_filepath = self._region_files[region_identifier]
+        return cv.imread(region_filepath)
+
+    def number_of_regions(self, region_dims=None):
+        return len(self._region_files)
+
+    @property
+    def width(self):
+        raise NotImplementedError()
+
+    @property
+    def height(self):
+        raise NotImplementedError()
+
+    @property
+    def dims(self):
+        raise NotImplementedError()
