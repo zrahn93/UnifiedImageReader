@@ -1,15 +1,9 @@
 """
-    Image Reader
-
-    1) Give it a filepath for a supported image format, and optionally an adapter to operate on the image file
-    2) If an adapter is provided as an argument, its corresponding library must support the image format
-    3) If an adapter is not provided as an argument, one will be created from a mapping of formats to adapters
-    4) Include utility methods for validation and extraction of region parameters
-    5) Include functionality for getting image regions using the reading behavior of an adapter
+    An ImageReader controls the behavior of the image interface. It can either utilize an adapter on a library or custom behavior.
 """
 
 import os
-from typing import Iterable, Union
+from typing import Any, Iterable, Optional, Tuple, Union
 
 import cv2 as cv
 import numpy as np
@@ -213,7 +207,22 @@ class ImageReader():
 
 
 class ImageReaderDirectory(ImageReader):
-    def __init__(self, data):
+
+    """
+     Treats a collection of images as a single image whereby regions don't have locations, only alphabetically-organized indices.
+     This works with both a directory and a list of image files.
+    """
+
+    def __init__(self, data: Union[str, list, tuple]):
+        """
+        __init__
+
+        :param data: the location(s) of constituent images
+        :type data: str
+        :raises Exception: when data is a string but isn't a directory
+        :raises TypeError: when data is neither a string nor list/tuple
+        :raises Exception: when a file in data (when data is a list) doesn't exist as a file 
+        """
         if isinstance(data, str):
             self._dir = data
             if not os.path.isdir(self._dir):
@@ -222,15 +231,27 @@ class ImageReaderDirectory(ImageReader):
                 self._dir, p) for p in os.listdir(self._dir)]
         elif isinstance(data, [list, tuple]):
             self._region_files = data
+            for region_filepath in self._region_files:
+                if not os.path.isfile(region_filepath):
+                    raise Exception(
+                        f"self._region_files should be composed of filepaths to existing image files but includes {region_filepath}")
         else:
             raise TypeError(f"Didn't expect {type(data)=}, {data=}")
-        for region_filepath in self._region_files:
-            if not os.path.isfile(region_filepath):
-                raise Exception(
-                    f"self._region_files should be composed of filepaths to existing image files but includes {region_filepath}")
         self._region_files.sort()
 
-    def get_region(self, region_identifier, region_dims=None):
+    def get_region(self, region_identifier: int, region_dims: Optional[Any] = None) -> np.ndarray:
+        """
+        get_region reads in the image at self._region_files[region_identifier]
+
+        :param region_identifier: the index of the file read (files are indexed alphabetically)
+        :type region_identifier: int
+        :param region_dims: IGNORED - the regions will be whatever the regions of the image file are, defaults to None
+        :type region_dims: Any, optional
+        :raises NotImplementedError: if the region identifier isn't an index
+        :raises IndexError: if region_identifier isn't in range
+        :return: region (the image in the file in question)
+        :rtype: np.ndarray
+        """
         if not isinstance(region_identifier, int):
             raise NotImplementedError(
                 "This ImageReader only operates on aggregated region files which are indexed alphabetically. Region coordinates are not supported.")
@@ -240,7 +261,15 @@ class ImageReaderDirectory(ImageReader):
         region_filepath = self._region_files[region_identifier]
         return cv.imread(region_filepath)
 
-    def number_of_regions(self, region_dims=None):
+    def number_of_regions(self, region_dims: Optional[Any] = None) -> int:
+        """
+        number_of_regions the number of region in the image (in this case, the number of image files)
+
+        :param region_dims: IGNORED - the dimensions of the regions in this image are the dimensions of the image in the files, defaults to None
+        :type region_dims: Optional[Any], optional
+        :return: the number of regions in this image (the number of the image files)
+        :rtype: int
+        """
         return len(self._region_files)
 
     @property

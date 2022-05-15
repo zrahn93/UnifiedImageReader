@@ -1,24 +1,15 @@
 
 """
-    Image
-
-    1) Provide a filepath, and optionally a reader interface for the image file. The optional reader can be a specified built-in one or a custom class
-    2) Include functionality for reading regions from the image
-    3) Include functionality for counting the number of regions and the image's dimensions
-    
+    An interface into optimized image reading behavior with optional overriding.
 """
 
 import contextlib
-from types import TracebackType
-from typing import Any, Optional, Type
+from typing import Optional
 
 import numpy as np
 
 from . import config
 from . import image_reader
-from . import util
-
-DEFAULT_REGION_DIMS = (512, 512)
 
 
 class Image(contextlib.AbstractContextManager):
@@ -39,7 +30,7 @@ class Image(contextlib.AbstractContextManager):
         self.reader = reader or image_reader.ImageReader(filepath)
         self._iter = None
 
-    def get_region(self, region_identifier, region_dims=DEFAULT_REGION_DIMS) -> np.ndarray:
+    def get_region(self, region_identifier, region_dims=config.DEFAULT_REGION_DIMS) -> np.ndarray:
         """
         get_region Get a pixel region from the image
 
@@ -52,7 +43,7 @@ class Image(contextlib.AbstractContextManager):
         """
         return self.reader.get_region(region_identifier, region_dims)
 
-    def number_of_regions(self, region_dims=DEFAULT_REGION_DIMS) -> int:
+    def number_of_regions(self, region_dims=config.DEFAULT_REGION_DIMS) -> int:
         """
         number_of_regions Get total number of regions from the image based on region dimensions
 
