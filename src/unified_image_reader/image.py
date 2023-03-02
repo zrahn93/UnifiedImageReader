@@ -29,6 +29,8 @@ class Image(contextlib.AbstractContextManager):
         self.filepath = filepath
         self.reader = reader or image_reader.ImageReader(filepath)
         self._iter = None
+        self.start = 0
+        self.stop = self.number_of_regions()
 
     def get_region(self, region_identifier, region_dims=config.DEFAULT_REGION_DIMS) -> np.ndarray:
         """
@@ -53,6 +55,11 @@ class Image(contextlib.AbstractContextManager):
         :rtype: int
         """
         return self.reader.number_of_regions(region_dims)
+
+    def slice(self, start, stop):
+        self.start = start
+        self._iter = start
+        self.stop = stop
 
     @property
     def width(self):
@@ -92,7 +99,7 @@ class Image(contextlib.AbstractContextManager):
         :return: Iterator for Image object
         :rtype: Image
         """
-        self._iter = 0
+        self._iter = self.start
         return self
 
     def __next__(self):
@@ -103,7 +110,7 @@ class Image(contextlib.AbstractContextManager):
         :return: Next pixel region index
         :rtype: int
         """
-        if self._iter >= self.number_of_regions():
+        if self._iter >= self.stop:
             raise StopIteration
         else:
             region = self.get_region(self._iter)
@@ -117,7 +124,7 @@ class Image(contextlib.AbstractContextManager):
         :return: The number of pixel regions in the Image object
         :rtype: int
         """
-        return self.number_of_regions()
+        return self.stop
 
     def __exit__(self, **kwargs) -> Optional[bool]:
         return super().__exit__(**kwargs)
